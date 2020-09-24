@@ -1,7 +1,8 @@
 import {debouce} from 'common/utils'
+import BackTop from 'components/content/backtop/BackTop'
 
+//把多个组件中重复的代码在此定义
 export const itemListenerMixin = {
-  //把多个组件中重复的代码在此定义
   data() {
     return {
       itemImgListener: null,
@@ -16,5 +17,23 @@ export const itemListenerMixin = {
     }
     this.$bus.$on('itemImageLoad', this.itemImgListener)
     // console.log('this is mixins..........')
+  },
+}
+
+export const backTopMinxin = {
+  data() {
+    return {
+      isShowBackTop: false,
+    }
+  },
+  components: {
+    BackTop,
+  },
+  methods: {
+    backClick() {
+      // console.log("backClick: ", this.$refs.scroll.scroll.scrollTo);
+      // this.$refs.scroll.scroll.scrollTo(0, 0, 500)
+      this.$refs.scroll.scrollTo(0, 0, 500)
+    },
   },
 }

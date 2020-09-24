@@ -1,6 +1,6 @@
 <template>
   <div>
-    <scroll class="wrapper" ref="scroll">
+    <scroll class="wrapper" ref="scroll" :probe-type="0">
       <h2>你好</h2>
       <ul class="content">
         <button class="btn" @click="btnClick">button</button>
@@ -100,14 +100,14 @@
 </template>
 
 <script>
-import scroll from '../../components/common/scroll/Scroll'
+import scroll from "../../components/common/scroll/Scroll";
 
 export default {
-  name: 'Category',
+  name: "Category",
   data() {
     return {
       scroll: null,
-    }
+    };
   },
   components: {
     scroll,
@@ -129,10 +129,10 @@ export default {
   // },
   methods: {
     btnClick() {
-      console.log('btnClick........')
+      console.log("btnClick........");
     },
   },
-}
+};
 </script>
 
 <style scoped>

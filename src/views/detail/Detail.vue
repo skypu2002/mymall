@@ -12,6 +12,7 @@
       <goods-list ref="recommend" :goods="recommendInfo" />
     </scroll>
     <detail-bottom-bar />
+    <back-top @click.native="backClick" v-show="isShowBackTop" />
   </div>
 </template>
 
@@ -28,8 +29,9 @@ import GoodsList from "components/content/goods/GoodsList";
 
 import Scroll from "components/common/scroll/Scroll";
 
-import { itemListenerMixin } from "common/mixin";
+import { itemListenerMixin, backTopMinxin } from "common/mixin";
 import { debouce } from "common/utils";
+import { POP, NEW, SELL, BACKTOP_DISTANCE } from "common/const.js";
 
 import {
   getDetail,
@@ -41,7 +43,7 @@ import {
 
 export default {
   name: "Detail",
-  mixins: [itemListenerMixin],
+  mixins: [itemListenerMixin, backTopMinxin],
   data() {
     return {
       iid: null,
@@ -174,6 +176,8 @@ export default {
           this.$refs.navbar.currentIndex = this.tabCurrentIndex;
         }
       }
+
+      this.isShowBackTop = -position.y > BACKTOP_DISTANCE;
     },
   },
   mounted() {

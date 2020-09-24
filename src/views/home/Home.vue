@@ -41,11 +41,12 @@ import RecommendView from "./childComps/RecommendView";
 import FeatureView from "./childComps/FeatureView";
 
 import { getHomeData, getHomeGoods } from "network/home";
-import { itemListenerMixin } from "common/mixin";
+import { itemListenerMixin, backTopMinxin } from "common/mixin";
+import { POP, NEW, SELL, BACKTOP_DISTANCE } from "common/const.js";
 
 export default {
   name: "Home",
-  mixins: [itemListenerMixin],
+  mixins: [itemListenerMixin, backTopMinxin],
   data() {
     return {
       banners: [],
@@ -55,8 +56,7 @@ export default {
         new: { page: 0, list: [] },
         sell: { page: 0, list: [] },
       },
-      currentType: "pop",
-      isShowBackTop: true,
+      currentType: POP,
       tabControlOffsetTop: 0,
       isTabFixed: false,
       saveY: 0,
@@ -76,14 +76,13 @@ export default {
     RecommendView,
     FeatureView,
     Scroll,
-    BackTop,
   },
   created() {
     //在组件加载完成后请求网络数据
     this.getHomeData();
-    this.getHomeGoods("pop");
-    this.getHomeGoods("new");
-    this.getHomeGoods("sell");
+    this.getHomeGoods(POP);
+    this.getHomeGoods(NEW);
+    this.getHomeGoods(SELL);
     //监听图片是否加载事件
     //不能在created中监听，因为此时$refs可能为null
     // this.$bus.$on("itemImageLoad", () => {
@@ -185,19 +184,12 @@ export default {
       this.$refs.tabControl2.currentIndex = index;
     },
 
-    // backTop click
-    backClick() {
-      // console.log("backClick: ", this.$refs.scroll.scroll.scrollTo);
-      // this.$refs.scroll.scroll.scrollTo(0, 0, 500)
-      //to-do: scrollTo无法正确执行
-      this.$refs.scroll.scrollTo(0, 0, 500);
-    },
     //监听滚动事件处理
     contentScroll(position) {
       // console.log("contentScroll form Home.vue ");
       // console.log("position from Home.vue: ", position);
       //判断backtop是否显示
-      this.isShowBackTop = -position.y > 100;
+      this.isShowBackTop = -position.y > BACKTOP_DISTANCE;
 
       //判断tabcontrol是否吸顶(position: fixed)
       this.isTabFixed = -position.y > this.tabControlOffsetTop;
