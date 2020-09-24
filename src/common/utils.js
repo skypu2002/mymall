@@ -2,7 +2,7 @@
  * 防抖函数： 传入函数、延时时间
  * 用于解决某些方法被频繁的调用，提供性能
  */
-export function debounce(func, delay) {
+export function debouce(func, delay = 500) {
   let timer = null
   return function(...args) {
     if (timer) clearTimeout(timer)

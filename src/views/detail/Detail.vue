@@ -1,14 +1,15 @@
 <template>
   <div id="detail" class="detail-nav">
-    <detail-nav-bar />
-    <scroll class="content" ref="scroll">
+    <detail-nav-bar @titleClick="titleClick" ref="navbar" />
+    <scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll">
+      <!-- 属性:topImages 传入：top-images, 因为在html中属性不区分大小写 -->
       <detail-swiper :top-images="topImages" />
       <detail-base-info :goods="goods" />
       <detail-shop-info :shop="shop" />
       <detail-image-info :detail-info="detailInfo" @imageLoad="imageLoad" />
-      <detail-param-info :paramInfo="paramInfo" />
-      <detail-comment-info :commentInfo="commentInfo" />
-      <goods-list :goods="recommendInfo" />
+      <detail-param-info ref="params" :paramInfo="paramInfo" />
+      <detail-comment-info ref="comment" :commentInfo="commentInfo" />
+      <goods-list ref="recommend" :goods="recommendInfo" />
     </scroll>
   </div>
 </template>
@@ -26,6 +27,7 @@ import GoodsList from "components/content/goods/GoodsList";
 import Scroll from "components/common/scroll/Scroll";
 
 import { itemListenerMixin } from "common/mixin";
+import { debouce } from "common/utils";
 
 import {
   getDetail,
@@ -49,6 +51,9 @@ export default {
       commentInfo: {},
       recommendInfo: [],
       // itemImgListener: null,  用mixin
+      themeTopYs: [],
+      getThemeTopY: null,
+      tabCurrentIndex: 0,
     };
   },
   components: {
@@ -92,12 +97,44 @@ export default {
       if (data.rate.cRate !== 0) {
         this.commentInfo = data.rate.list[0];
       }
+      /*
+      this.$nextTick(() => {
+        //此代码不能在mounted中调用，因为此时组件的数据尚未加载
+        //也不能在created中，因为此时组件元素尚未加载完成
+        //但可以在updated执行，不过会频繁更新
+        //推荐在nextTick中执行，确保数据和元素都已经加载和渲染完毕回调执行一次
+        //注意：此时仅仅是根据最新的数据把对应的dom渲染完成，而图片依然没有加载完毕！！！
+        //所以获取的offsetTop并没有保存图片的高度
+
+        //获取每个主题的offsetTop
+        this.themeTopYs.push(0);
+        this.themeTopYs.push(this.$refs.params.$el.offsetTop);
+        this.themeTopYs.push(this.$refs.comment.$el.offsetTop);
+        this.themeTopYs.push(this.$refs.recommend.$el.offsetTop);
+        // console.log("themeTopYs: ", this.themeTopYs);
+
+       //！！！！鉴于nextTick也无法获取正确的offsetTop值，推荐在imageLoad中来获取
+      });
+        */
     });
 
     //请求推荐商品（与某个商品无关）
     getRecommend().then((res) => {
       // console.log("getRecommend: ", res);
       this.recommendInfo = res.data.data.list;
+    });
+
+    //用防抖来处理获取offsetTop的值
+    this.getThemeTopY = debouce(() => {
+      //获取每个主题的offsetTop
+      //直接获取则会频繁执行，需要做防抖处理
+      this.themeTopYs = [];
+      this.themeTopYs.push(0);
+      this.themeTopYs.push(this.$refs.params.$el.offsetTop);
+      this.themeTopYs.push(this.$refs.comment.$el.offsetTop);
+      this.themeTopYs.push(this.$refs.recommend.$el.offsetTop);
+      this.themeTopYs.push(Number.MAX_VALUE); //用于tab和内容联动处理
+      // console.log("themeTopYs: ", this.themeTopYs);
     });
   },
   methods: {
@@ -108,13 +145,39 @@ export default {
 
       //原先的优化方式
       // this.$refs.scroll.refresh();
+
+      //使用防抖方法来获取每个主题的offsetTop
+      this.getThemeTopY();
+    },
+    titleClick(index) {
+      // console.log("titleClick: ", index);
+      // 注意，y轴的数值是负数
+      this.$refs.scroll.scrollTo(0, -this.themeTopYs[index], 500);
+    },
+    contentScroll(position) {
+      // console.log("position: ", position);
+      //获取y值
+      const posY = -position.y;
+
+      //和主题themeTopYs的offsetY进行对比
+      let length = this.themeTopYs.length;
+      for (let i = 0; i < length - 1; i++) {
+        if (
+          this.tabCurrentIndex !== i &&
+          posY >= this.themeTopYs[i] &&
+          posY < this.themeTopYs[i + 1]
+        ) {
+          this.tabCurrentIndex = i;
+          this.$refs.navbar.currentIndex = this.tabCurrentIndex;
+        }
+      }
     },
   },
   mounted() {
     // console.log("mounted=====");
     /**
     //对监听事件进行保存
-    const newRefresh = debounce(this.$refs.scroll.refresh, 50);
+    const newRefresh = debouce(this.$refs.scroll.refresh, 50);
     this.itemImgListener = () => {
       newRefresh();
     };

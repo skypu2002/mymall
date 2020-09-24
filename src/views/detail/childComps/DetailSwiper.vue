@@ -34,7 +34,7 @@ export default {
     imageLoad() {
       // console.log("DetailSwiper.vue imageLoad.");
       //仅需要派发一次事件即可，其他的图片加载都是重复的
-      //此处不需要使用debounce
+      //此处不需要使用debouce
       if (!this.isLoad) {
         this.$emit("swiperImageLoad");
         this.isLoad = true;

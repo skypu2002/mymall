@@ -96,14 +96,14 @@ export default {
     //此方法不要在created中调用，避免tabControl尚未加载完成导致undefined错误
     this.tabClick(0);
     //mounted中监听图片是否加载事件，确保元素都已经加载完毕
-    //以下这个方法存在频繁调用的问题，可以用防抖函数debounce优化
+    //以下这个方法存在频繁调用的问题，可以用防抖函数debouce优化
     //注意: 传入函数不能带(),否则就变成执行此函件了！！
     //     refresh虽然是局部变量，但由于是用在闭包中，不会被销毁
     /** 
      * 采用mixins处理方式抽取和混入重复代码（见详情页）
      * mixins: 先import ，再定义mixins数组, 最后删除重复代码
      * 
-    const newRefresh = debounce(this.$refs.scroll.refresh, 50);
+    const newRefresh = debouce(this.$refs.scroll.refresh, 50);
     //对监听事件进行保存
     this.itemImgListener = () => {
       newRefresh();
@@ -131,7 +131,7 @@ export default {
     //  * 用于解决某些方法被频繁的调用，提供性能
     //  * 并抽离成公用函数进行调用
     //  */
-    // debounce(func, delay) {
+    // debouce(func, delay) {
     //   let timer = null;
     //   return function (...args) {
     //     if (timer) clearTimeout(timer);

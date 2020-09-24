@@ -37,7 +37,7 @@ export default {
   },
   methods: {
     imgLoad() {
-      //可以用debounce来做防抖处理
+      //可以用debouce来做防抖处理
       this.$emit("imageLoad");
 
       //也可以用以下方法来做优化，确保值执行一次
