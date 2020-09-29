@@ -34,8 +34,7 @@ Vue.use(toast)
 // }
 
 Vue.use(LazyLoad, {
-  // loading: loadingImg,
-  loading: require('./assets/img/common/placeholder.png'),
+  loading: require('assets/img/common/placeholder.png'),
 })
 
 // 安装fastcilck，解决移动端300ms的延迟
