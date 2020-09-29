@@ -5,7 +5,7 @@
       <span>全选</span>
     </div>
     <div class="total-price">合计: {{ totalPrice }}</div>
-    <div class="calculate">去结算({{ checkCount }})</div>
+    <div class="calculate" @click="calClick">去结算({{ checkCount }})</div>
   </div>
 </template>
 
@@ -66,6 +66,12 @@ export default {
 
       //此处不能做简化写法，因为执行中会影响isSelectAll
       // this.cartList.forEach((item) => (item.checked = !this.isSelectAll))
+    },
+    calClick() {
+      // console.log('calClick: ')
+      if (!this.isSelectAll) {
+        this.$toast.show('请选择要购买的商品!')
+      }
     },
   },
 }

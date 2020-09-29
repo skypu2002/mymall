@@ -13,7 +13,7 @@
     </scroll>
     <detail-bottom-bar @addToCart="addToCart" />
     <back-top @click.native="backClick" v-show="isShowBackTop" />
-    <toast :message="toastMsg" :is-show="toastShow" />
+    <!-- <toast :message="toastMsg" :is-show="toastShow" /> -->
   </div>
 </template>
 
@@ -29,7 +29,7 @@ import DetailBottomBar from './childComps/DetailBottomBar'
 import GoodsList from 'components/content/goods/GoodsList'
 
 import Scroll from 'components/common/scroll/Scroll'
-import Toast from 'components/common/toast/Toast'
+// import Toast from 'components/common/toast/Toast'
 
 import {itemListenerMixin, backTopMinxin} from 'common/mixin'
 import {debouce} from 'common/utils'
@@ -55,8 +55,8 @@ export default {
       themeTopYs: [],
       getThemeTopY: null,
       tabCurrentIndex: 0,
-      toastMsg: '',
-      toastShow: false,
+      // toastMsg: '',
+      // toastShow: false,
     }
   },
   components: {
@@ -70,7 +70,7 @@ export default {
     DetailBottomBar,
     Scroll,
     GoodsList,
-    Toast,
+    // Toast,
   },
   created() {
     this.iid = this.$route.params.iid
@@ -188,11 +188,15 @@ export default {
       //回调vuex中的action函数（映射写法）
       this.addCart(product).then((res) => {
         // console.log('addToCart11: ', res)
-        ;(this.toastShow = true),
-          (this.toastMsg = res),
-          setTimeout(() => {
-            ;(this.toastMsg = ''), (this.toastShow = false)
-          }, 1500)
+        //toast 普通使用方法
+        //   (this.toastShow = true)
+        //   (this.toastMsg = res)
+        //   setTimeout(() => {
+        //     ;(this.toastMsg = ''), (this.toastShow = false)
+        //   }, 1500)
+
+        // 插件用法
+        this.$toast.show(res, 1500)
       })
     },
   },
@@ -221,7 +225,6 @@ export default {
 #detail {
   /* 以下设置可以使得detail页面覆盖住底部的主菜单栏 */
   position: relative;
-  z-index: 9;
   background-color: #fff;
   height: 100vh;
 }
