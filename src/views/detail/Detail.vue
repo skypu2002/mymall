@@ -34,6 +34,7 @@ import {debouce} from 'common/utils'
 import {POP, NEW, SELL, BACKTOP_DISTANCE} from 'common/const.js'
 
 import {getDetail, getRecommend, Goods, Shop, GoodsParam} from 'network/detail'
+import {mapActions} from 'vuex'
 
 export default {
   name: 'Detail',
@@ -130,6 +131,7 @@ export default {
     })
   },
   methods: {
+    ...mapActions(['addCart']),
     imageLoad() {
       //防抖的优化方式，可以直接call mixins的newRefresh
       this.newRefresh()
@@ -174,7 +176,14 @@ export default {
 
       //加入购物车
       // this.$store.commit('addCart', product)
-      this.$store.dispatch('addCart', product)
+      //回调vuex中的action函数（常规写法）
+      // this.$store.dispatch('addCart', product).then((res) => {
+      //   console.log('addToCart: ', res)
+      // })
+      //回调vuex中的action函数（映射写法）
+      this.addCart(product).then((res) => {
+        console.log('addToCart11: ', res)
+      })
     },
   },
   mounted() {
