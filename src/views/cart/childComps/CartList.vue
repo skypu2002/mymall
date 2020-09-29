@@ -1,8 +1,9 @@
 <template>
   <scroll class="content" ref="scroll">
-    <!-- <div id="cart-list" class="cart-list"> -->
-    <cart-list-item v-for="(item, index) in cartList" :item-info="item" :key="index" />
-    <!-- </div> -->
+    <!-- div id="cart-list" 可能导致购物车无法滚动 -->
+    <div id="cart-list" class="cart-list">
+      <cart-list-item v-for="(item, index) in cartList" :item-info="item" :key="index" />
+    </div>
   </scroll>
 </template>
 <script>

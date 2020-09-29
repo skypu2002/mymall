@@ -1,7 +1,7 @@
 <template>
   <div id="bottom-bar" class="bottom-bar">
     <div class="check-content">
-      <check-button class="check-all" />
+      <check-button class="check-all" :is-checked="isSelectAll" @click.native="chekAllClick" />
       <span>全选</span>
     </div>
     <div class="total-price">合计: {{ totalPrice }}</div>
@@ -41,6 +41,32 @@ export default {
         return item.checked
       }).length
     },
+    isSelectAll() {
+      // return this.cartList.filter((item) => item.checked).length
+      if (this.cartList.length === 0) return false
+      // console.log('isSelectAll: ', !this.cartList.find((item) => item.checked))
+      // let isSelected = this.cartList.find((item) => item.checked)
+      // return isSelected
+
+      //遍历方法
+      for (let item of this.cartList) {
+        // console.log('item: ', item.iid, item.checked)
+        if (!item.checked) return false
+      }
+      return true
+    },
+  },
+  methods: {
+    chekAllClick() {
+      if (this.isSelectAll) {
+        this.cartList.forEach((item) => (item.checked = false))
+      } else {
+        this.cartList.forEach((item) => (item.checked = true))
+      }
+
+      //此处不能做简化写法，因为执行中会影响isSelectAll
+      // this.cartList.forEach((item) => (item.checked = !this.isSelectAll))
+    },
   },
 }
 </script>
@@ -61,13 +87,14 @@ export default {
   align-items: center;
   margin-left: 10px;
   line-height: 40px;
+  padding-left: 28px;
 }
 
 .check-all {
-  margin-top: 10px;
-  margin-right: 5px;
-  width: 20px;
-  height: 20px;
+  position: absolute;
+  line-height: 0;
+  left: 12px;
+  top: 13px;
 }
 
 .total-price {
