@@ -1,41 +1,42 @@
 <template>
   <div class="goods-item">
     <!-- 通过load来监听图片是否加载完成 -->
-    <img :src="goodsItem.image || goodsItem.show.img" alt @load="imageLoad" @click="itemClick" />
+    <!-- 通过懒加载lazyload来处理图片显示，提高页面效率 -->
+    <img v-lazy="goodsItem.image || goodsItem.show.img" alt @load="imageLoad" @click="itemClick" />
     <div class="goods-info">
-      <p>{{goodsItem.title}}</p>
-      <span class="price">{{goodsItem.price}}</span>
-      <span class="collect">{{goodsItem.cfav}}</span>
+      <p>{{ goodsItem.title }}</p>
+      <span class="price">{{ goodsItem.price }}</span>
+      <span class="collect">{{ goodsItem.cfav }}</span>
     </div>
   </div>
 </template>
 <script>
 export default {
-  name: "GoodsListItem",
+  name: 'GoodsListItem',
   props: {
     goodsItem: {
       type: Object,
       default() {
-        return {};
+        return {}
       },
     },
   },
   data() {
-    return {};
+    return {}
   },
   methods: {
     imageLoad() {
       // console.log("imageLoad......");
       //用事件总线派发事件
-      this.$bus.$emit("itemImageLoad");
+      this.$bus.$emit('itemImageLoad')
     },
     itemClick() {
       // console.log("itemClick: 跳转到详情页");
-      this.$router.push("/detail/" + this.goodsItem.iid);
+      this.$router.push('/detail/' + this.goodsItem.iid)
       // this.$emit("itemClick");
     },
   },
-};
+}
 </script>
 <style scoped>
 .goods-item {
@@ -79,13 +80,13 @@ export default {
 
 .goods-info .collect::before {
   /* 用伪元素显示一个图标 */
-  content: "";
+  content: '';
   position: absolute;
   left: -15px;
   top: -1px;
   width: 14px;
   height: 14px;
   /* 用0 0/14px 14px确保能显示出来 */
-  background: url("~assets/img/common/collect.svg") 0 0/14px 14px;
+  background: url('~assets/img/common/collect.svg') 0 0/14px 14px;
 }
 </style>
