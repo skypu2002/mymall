@@ -13,6 +13,7 @@
     </scroll>
     <detail-bottom-bar @addToCart="addToCart" />
     <back-top @click.native="backClick" v-show="isShowBackTop" />
+    <toast :message="toastMsg" :is-show="toastShow" />
   </div>
 </template>
 
@@ -28,6 +29,7 @@ import DetailBottomBar from './childComps/DetailBottomBar'
 import GoodsList from 'components/content/goods/GoodsList'
 
 import Scroll from 'components/common/scroll/Scroll'
+import Toast from 'components/common/toast/Toast'
 
 import {itemListenerMixin, backTopMinxin} from 'common/mixin'
 import {debouce} from 'common/utils'
@@ -53,6 +55,8 @@ export default {
       themeTopYs: [],
       getThemeTopY: null,
       tabCurrentIndex: 0,
+      toastMsg: '',
+      toastShow: false,
     }
   },
   components: {
@@ -66,6 +70,7 @@ export default {
     DetailBottomBar,
     Scroll,
     GoodsList,
+    Toast,
   },
   created() {
     this.iid = this.$route.params.iid
@@ -182,7 +187,12 @@ export default {
       // })
       //回调vuex中的action函数（映射写法）
       this.addCart(product).then((res) => {
-        console.log('addToCart11: ', res)
+        // console.log('addToCart11: ', res)
+        ;(this.toastShow = true),
+          (this.toastMsg = res),
+          setTimeout(() => {
+            ;(this.toastMsg = ''), (this.toastShow = false)
+          }, 1500)
       })
     },
   },
