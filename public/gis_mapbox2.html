@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Join local JSON data with vector tile geometries</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <script src="http://localhost:8080/mapbox/mapbox-gl.js"></script>
+    <link href="http://localhost:8080/mapbox/mapbox-gl.css" rel="stylesheet" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+      #fly {
+        display: block;
+        position: relative;
+        margin: 0px auto;
+        width: 50%;
+        height: 40px;
+        padding: 10px;
+        border: none;
+        border-radius: 3px;
+        font-size: 12px;
+        text-align: center;
+        color: #fff;
+        background: #ee8a65;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="map"></div>
+    <script>
+      mapboxgl.accessToken = 'pk.eyJ1IjoibGFpYy10ZWNoIiwiYSI6ImNpdTV2bDV2YjBocTkydG8xNDFvYnE3aXQifQ.EysfWwae76jd2aAAHfnBuQ'
+      // online method
+      var map = new mapboxgl.Map({
+        container: 'map', // container id
+        style: 'mapbox://styles/mapbox/dark-v10', // stylesheet location
+        center: [113.357, 38.3126], // starting position [lng, lat]
+        zoom: 2, // starting zoom
+      })
+
+      //offline method
+      // var map = new mapboxgl.Map({
+      //   container: 'map',
+      //   style: {
+      //     version: 8,
+      //     name: 'bkmap',
+      //     sprite: 'http://localhost:8080/mapbox/sprite',
+      //     glyphs: 'http://localhost:8080/mapbox/fonts/{fontstack}/{range}.pbf',
+      //     sources: {
+      //       bkmap: {
+      //         url: 'mapbox://styles/mapbox/dark-v10',
+      //         type: 'vector',
+      //         // scheme: 'tms',
+      //         // tiles: ['http://c.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+      //       },
+      //     },
+      //     layers: [],
+      //   },
+      //   center: [113.357, 38.3126],
+      //   zoom: 12,
+      // })
+      map.on('load', function() {
+        //添加业务图层组
+        map.addSource('tjgs', {
+          type: 'vector',
+          scheme: 'tms',
+          tiles: ['http://ld.laic-tech.com:11170/geoserver/gwc/service/tms/1.0.0/tj%3Atjgs@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf'],
+          style: {
+            glyphs: 'http://localhost:8080/mapbox/fonts/{fontstack}/{range}.pbf',
+          },
+        })
+        //添加道路图层
+        map.addLayer({
+          id: 'road',
+          type: 'line',
+          source: 'tjgs',
+          'source-layer': 'road',
+          layout: {
+            'line-cap': 'round',
+            'line-join': 'round',
+          },
+          paint: {
+            'line-width': {
+              base: 1.5,
+              stops: [
+                [5, 0.75],
+                //[18, 32], //比例尺设置
+              ],
+            },
+            'line-color': {
+              base: 1,
+              stops: [
+                [8, 'hsl(26, 87%, 62%)'],
+                [9, 'hsl(26, 100%, 68%)'],
+              ],
+            },
+          },
+          interactive: true,
+        })
+        //添加道路中线图层
+        // map.addLayer({
+        //   id: 'center_line',
+        //   type: 'line',
+        //   source: 'tjgs',
+        //   'source-layer': 'center_line',
+        //   layout: {
+        //     'line-cap': 'round',
+        //     'line-join': 'round',
+        //   },
+        //   paint: {
+        //     'line-width': {
+        //       base: 2,
+        //       stops: [
+        //         [5, 0.75],
+        //         //[18, 32], //比例尺设置
+        //       ],
+        //     },
+        //     'line-color': {
+        //       base: 1,
+        //       stops: [
+        //         [8, 'hsl(200, 87%, 62%)'],
+        //         [9, 'hsl(200, 100%, 68%)'],
+        //       ],
+        //     },
+        //   },
+        //   interactive: true,
+        // })
+        //添加桩号图层
+        map.addLayer({
+          id: 'stake',
+          type: 'line',
+          source: 'tjgs',
+          'source-layer': 'stake',
+          layout: {
+            'line-cap': 'round',
+            'line-join': 'round',
+          },
+          paint: {
+            'line-width': {
+              base: 2,
+              stops: [
+                [5, 0.75],
+                //[18, 32], //比例尺设置
+              ],
+            },
+            'line-color': {
+              base: 1,
+              stops: [
+                [8, 'hsl(200, 87%, 62%)'],
+                [9, 'hsl(200, 100%, 68%)'],
+              ],
+            },
+          },
+          interactive: true,
+        })
+        //添加设备图层
+        map.addLayer({
+          id: 'device',
+          type: 'circle',
+          source: 'tjgs',
+          'source-layer': 'device',
+          paint: {
+            'circle-radius': 10,
+            'circle-color': '#3887be',
+          },
+          properties: {
+            description: 'hello map',
+          },
+          minzoom: 14,
+          // maxzoom: 10,
+          // layout: {
+          //   'icon-image': 'dot-11',
+          //   'text-font': {
+          //     base: 1,
+          //     stops: [
+          //       [10, []],
+          //       [20, []],
+          //     ],
+          //   },
+          //   'text-offset': {
+          //     base: 1,
+          //     stops: [
+          //       [10, [0, 0.15]],
+          //       [20, [0, 0]],
+          //     ],
+          //   },
+          //   'text-anchor': {
+          //     base: 1,
+          //     stops: [
+          //       [10, 'top'],
+          //       [20, 'center'],
+          //     ],
+          //   },
+          //   'text-field': '{TEXTSTRING}',
+          //   'text-max-width': 7,
+          //   'text-size': {
+          //     base: 0.9,
+          //     stops: [
+          //       [4, 12],
+          //       [10, 22],
+          //     ],
+          //   },
+          // },
+          // paint: {
+          //   'text-color': 'hsl(200, 0%, 0%)',
+          //   'text-halo-color': 'hsl(200, 0%, 100%)',
+          //   'text-halo-width': 1,
+          //   'icon-opacity': {
+          //     base: 1,
+          //     stops: [
+          //       [7.99, 1],
+          //       [8, 0],
+          //     ],
+          //   },
+          //   'text-halo-blur': 1,
+          // },
+          interactive: true,
+        })
+
+        // 地图显示完毕后，使用飞入效果定位到指定的区域范围
+        //fly effection, ref:https://docs.mapbox.com/mapbox-gl-js/example/flyto-options/
+        setTimeout(() => {
+          map.flyTo({
+            center: [113.357, 38.3126], // starting position [lng, lat]
+            zoom: 13,
+            speed: 0.8,
+            curve: 1,
+            essential: true, // this animation is considered essential with respect to prefers-reduced-motion
+          })
+        }, 1500)
+
+        // 设置地图显示的语言（失败）
+        // mapboxgl.setRTLTextPlugin('https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.1.0/mapbox-gl-rtl-text.js')
+        // map.addControl(
+        //   new MapboxLanguage({
+        //     defaultLanguage: 'zh',
+        //   })
+        // )
+        // map.setLayoutProperty('country-label', 'text-field', ['get', 'name_zh'])
+
+        //添加缩放控件
+        map.addControl(new mapboxgl.NavigationControl())
+      })
+
+      //点击设备图层，显示相关信息
+      map.on('click', 'device', function(e) {
+        // console.log('stake_name click...... ', e.features[0])
+        var coordinates = e.features[0].geometry.coordinates.slice()
+        var device_data = e.features[0].properties
+        // console.log('device: ', device_data)
+        // 获取本桩号安装的一个或多个设备名称及数量
+        let all_deivce = []
+        for (var p in device_data) {
+          // console.log(p, ': ', typeof device_data[p])
+          if (typeof device_data[p] === 'number' && device_data[p] > 0) {
+            all_deivce.push(p + '(' + device_data[p] + ')')
+          }
+        }
+        let all_device_string = all_deivce.join('<br>')
+        var show_content =
+          '<b>运营桩号:</b>' + device_data['运营桩'] + '<br/><b>位置:</b>' + device_data['位置'] + '<br/><b>设备:</b>' + all_device_string
+
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360
+        }
+
+        //显示设备信息的弹框
+        new mapboxgl.Popup()
+          .setLngLat(coordinates)
+          .setHTML(show_content)
+          .addTo(map)
+      })
+
+      // Change the cursor to a pointer when the mouse is over the places layer.
+      map.on('mouseenter', 'places', function() {
+        map.getCanvas().style.cursor = 'pointer'
+      })
+
+      // Change it back to a pointer when it leaves.
+      map.on('mouseleave', 'places', function() {
+        map.getCanvas().style.cursor = ''
+      })
+    </script>
+  </body>
+</html>
