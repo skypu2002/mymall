@@ -2,15 +2,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Display a map</title>
+    <title>Add a default marker</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js"></script>
-    <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css" rel="stylesheet" />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css" rel="stylesheet" />
     <style>
       body {
         margin: 0;
         padding: 0;
       }
+
       #map {
         position: absolute;
         top: 0;
@@ -19,16 +20,172 @@
       }
     </style>
   </head>
+
   <body>
     <div id="map"></div>
     <script>
-      mapboxgl.accessToken = 'pk.eyJ1IjoibGFpYy10ZWNoIiwiYSI6ImNpdTV2bDV2YjBocTkydG8xNDFvYnE3aXQifQ.EysfWwae76jd2aAAHfnBuQ'
+      const pointData = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            // feature for Mapbox DC
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              // coordinates: [120.34191, 31.20093],
+              coordinates: [120.04486, 30.92814],
+            },
+            properties: {
+              title: '徐家汇',
+              icon: 'monument',
+            },
+          },
+          {
+            // feature for Mapbox SF
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              // coordinates: [120.12813, 31.28072],
+              coordinates: [120.2458, 30.95],
+            },
+            properties: {
+              title: '森林公园',
+              icon: 'harbor',
+            },
+          },
+        ],
+      }
+      const newPointData = [
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [120.34191, 31.20093],
+          },
+          properties: {
+            title: '东方明珠',
+            icon: 'monument',
+          },
+        },
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [120.12813, 31.28072],
+          },
+          properties: {
+            title: '东方绿洲',
+            icon: 'harbor',
+          },
+        },
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [119.8858, 31.30888],
+          },
+          properties: {
+            title: '海昌',
+            icon: 'monument',
+          },
+        },
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [120.01328, 31.09121],
+          },
+          properties: {
+            title: '迪士尼',
+            icon: 'harbor',
+          },
+        },
+      ]
+
+      const onlineStyle = {
+        version: 8,
+        //      style: 'mapbox://styles/mapbox/basic-v9',
+        //      "sprite": "mapbox://sprites/mapbox/streets-v8",
+        sprite: 'http://localhost:8080/mapbox/sprite',
+        glyphs: './mapbox/fonts/{fontstack}/{range}.pbf',
+        sources: {
+          'osm-tiles': {
+            type: 'raster',
+            tiles: ['http://c.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+            tileSize: 256,
+          },
+        },
+        layers: [
+          {
+            id: 'simple-tiles',
+            type: 'raster',
+            source: 'osm-tiles',
+            minzoom: 0,
+            maxzoom: 22,
+          },
+        ],
+      }
+      // mapboxgl.accessToken = 'pk.eyJ1IjoiaHpzejIwMjAiLCJhIjoiY2tjdm9pNHZpMDY3NzJ2czM4a2hjdjM1byJ9.Vt6klFZFg08r04OKYTQvrw'
       var map = new mapboxgl.Map({
         container: 'map', // container id
-        style: 'mapbox://styles/mapbox/dark-v10', // stylesheet location
-        center: [-74.5, 40], // starting position [lng, lat]
-        zoom: 9, // starting zoom
+        style: onlineStyle,
+        zoom: 8,
+        center: [120.34191, 30.20093], //太湖
+        // center: [-122.019807, 45.632433], //forest park
       })
+
+      map.on('load', function() {
+        loadExmapleLayer()
+        addNewPointer()
+      })
+
+      function loadExmapleLayer() {
+        //自定义2个点击内容
+        map.addSource('points', {
+          type: 'geojson',
+          data: pointData,
+        })
+        // 添加图层，使得上面的数据源里面的数据可视化
+        map.addLayer({
+          id: 'points',
+          type: 'symbol',
+          source: 'points',
+          layout: {
+            'icon-image': '{icon}-11',
+            'text-field': '{title}',
+            'text-font': ['Microsoft YaHei Regular'],
+            'text-offset': [0, 0.6],
+            'text-anchor': 'top',
+          },
+          paint: {
+            'text-halo-color': 'hsl(0, 0%, 100%)',
+            'text-halo-width': 1.25,
+            'text-color': '#A569BD',
+          },
+        })
+      }
+
+      function addNewPointer() {
+        //setTimeout method
+        // setTimeout(() => {
+        //   newPointData.forEach(function(item) {
+        //     pointData.features.push(item)
+        //   })
+        //   map.getSource('points').setData(pointData)
+        // }, 2000)
+
+        // on a regular basis, add more coordinates from the saved list and update the map
+        var i = 0
+        var timer = window.setInterval(function() {
+          if (i < newPointData.length) {
+            pointData.features.push(newPointData[i])
+            map.getSource('points').setData(pointData)
+            i++
+          } else {
+            window.clearInterval(timer)
+          }
+        }, 1500)
+      }
     </script>
   </body>
 </html>

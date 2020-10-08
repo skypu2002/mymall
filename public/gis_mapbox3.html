@@ -134,7 +134,7 @@
     <nav id="filter-group" class="filter-group"></nav>
 
     <script>
-      mapboxgl.accessToken = 'pk.eyJ1IjoibGFpYy10ZWNoIiwiYSI6ImNpdTV2bDV2YjBocTkydG8xNDFvYnE3aXQifQ.EysfWwae76jd2aAAHfnBuQ'
+      // mapboxgl.accessToken = 'pk.eyJ1IjoibGFpYy10ZWNoIiwiYSI6ImNpdTV2bDV2YjBocTkydG8xNDFvYnE3aXQifQ.EysfWwae76jd2aAAHfnBuQ'
       // online method
       // var map = new mapboxgl.Map({
       //   container: 'map', // container id
@@ -147,7 +147,7 @@
         version: 8,
         name: 'bkmap',
         sprite: 'http://localhost:8080/mapbox/sprite',
-        glyphs: 'http://localhost:8080/mapbox/fonts/{fontstack}/{range}.pbf',
+        glyphs: './mapbox/fonts/{fontstack}/{range}.pbf',
         sources: {
           bkmap: {
             type: 'vector',
@@ -183,6 +183,8 @@
         // style: hzStye,
         zoom: 2,
         style: chinaStye,
+        // bearing: -45,
+        // pitch: 30,
       })
       //添加bk source
       // const source1 = map.addSource('bkmap', {
@@ -423,7 +425,6 @@
           source: 'bkmap',
           'source-layer': 'county',
           minzoom: 7,
-          maxzoom: 18,
           paint: {
             'fill-color': '#273746',
             'fill-opacity': 0.9,
@@ -521,7 +522,7 @@
           scheme: 'tms',
           tiles: ['http://ld.laic-tech.com:11170/geoserver/gwc/service/tms/1.0.0/tj%3Atjgs@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf'],
           style: {
-            glyphs: 'http://localhost:8080/mapbox/fonts/{fontstack}/{range}.pbf',
+            glyphs: './mapbox/fonts/{fontstack}/{range}.pbf',
           },
         })
 
@@ -564,7 +565,7 @@
           minzoom: 15.001,
           paint: {
             'line-width': 4,
-            'line-gap-width': 1,
+            'line-gap-width': 0,
             'line-color': {
               base: 1,
               stops: [[8, '#85C1E9']],
@@ -633,23 +634,23 @@
         //   source: 'tjgs',
         //   'source-layer': 'device',
         //   type: 'symbol',
-        //   minzoom: 14,
+        //   minzoom: 13,
         //   layout: {
         //     'text-field': '{fid}',
         //     'text-transform': 'uppercase',
-        //     // 'text-font': ['Microsoft YaHei Regular'],
+        //     'text-font': ['Microsoft YaHei Regular'],
         //     'text-padding': 5,
-        //     // 'text-keep-upright': false,
-        //     // 'text-rotation-alignment': 'map',
+        //     'text-keep-upright': false,
+        //     'text-rotation-alignment': 'map',
         //     'symbol-placement': 'line-center',
-        //     // 'text-pitch-alignment': 'viewport',
+        //     'text-pitch-alignment': 'viewport',
         //     'text-size': 12,
         //   },
         //   paint: {
-        //     // 'text-halo-color': 'rgb(200, 200, 200)',
-        //     // 'text-halo-width': 1,
+        //     'text-halo-color': 'rgb(200, 200, 200)',
+        //     'text-halo-width': 1,
         //     'text-color': '#C0392B',
-        //     // 'text-halo-blur': 0.5,
+        //     'text-halo-blur': 0.5,
         //   },
         //   interactive: true,
         // })
@@ -743,6 +744,7 @@
             speed: 0.8,
             curve: 1,
             essential: true, // this animation is considered essential with respect to prefers-reduced-motion
+            bearing: -50,
           })
         }, 1500)
       }
