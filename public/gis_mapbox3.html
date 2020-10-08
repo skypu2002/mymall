@@ -338,30 +338,32 @@
           },
         })
 
-        //显示province 名称
+        //显示 province 名称
         map.addLayer({
           id: 'province-name',
+          type: 'symbol',
           source: 'bkmap',
           'source-layer': 'province',
-          type: 'symbol',
+          minzoom: 1,
           layout: {
-            'text-field': '{name}',
-            'text-transform': 'uppercase',
+            // 'icon-image': 'museum-15',
+            'text-field': '{NAME}',
             'text-font': ['Microsoft YaHei Regular'],
+            'text-transform': 'uppercase',
             'text-padding': 5,
             'text-keep-upright': false,
             'text-rotation-alignment': 'map',
             'symbol-placement': 'line-center',
             'text-pitch-alignment': 'viewport',
-            'text-size': 12,
+            'text-size': 20,
+            'text-offset': [0, 0.6],
+            'text-anchor': 'top',
           },
           paint: {
-            'text-halo-color': 'rgb(200, 200, 200)',
-            'text-halo-width': 1,
-            'text-color': 'rgb(0, 0, 0)',
-            'text-halo-blur': 0.5,
+            'text-halo-color': 'hsl(0, 0%, 100%)',
+            'text-halo-width': 0.5,
+            'text-color': '#34495E',
           },
-          interactive: true,
         })
 
         map.addLayer({
@@ -370,7 +372,6 @@
           source: 'bkmap',
           'source-layer': 'city',
           minzoom: 7,
-          maxzoom: 15,
           paint: {
             'fill-color': '#273746',
             'fill-opacity': 0.9,
@@ -437,7 +438,6 @@
           source: 'bkmap',
           'source-layer': 'county',
           minzoom: 7,
-          maxzoom: 18,
           layout: {
             'line-join': 'round',
             'line-cap': 'round',
@@ -475,36 +475,117 @@
           interactive: true,
         })
 
-        //添加gis_osm_waterways_free_1图层
-        map.addLayer({
-          id: 'waterways',
-          type: 'line',
-          source: 'bkmap',
-          'source-layer': 'gis_osm_waterways_free_1',
-          minzoom: 10,
-          maxzoom: 18,
-          paint: {
-            'line-color': '#a0cfdf',
-            'line-width': {
-              base: 1.4,
-              stops: [
-                [8, 0.5],
-                [20, 15],
-              ],
-            },
-          },
-        })
-
+        //添加landuse
         map.addLayer({
           id: 'landuse',
           type: 'fill',
           source: 'bkmap',
           'source-layer': 'gis_osm_landuse_a_free_1',
           minzoom: 10,
-          maxzoom: 18,
+          // maxzoom: 18,
           paint: {
             'fill-color': '#239B56',
             'fill-opacity': 0.8,
+          },
+        })
+
+        //添加waterways
+        map.addLayer({
+          id: 'waterways',
+          type: 'line',
+          source: 'bkmap',
+          'source-layer': 'gis_osm_waterways_free_1',
+          minzoom: 10,
+          filter: ['in', 'fclass', 'river', 'stream'],
+          paint: {
+            'line-color': '#21618C',
+            'line-width': {
+              base: 1.4,
+              stops: [
+                [8, 0.5],
+                [14, 5],
+              ],
+            },
+          },
+        })
+
+        //添加road及路名
+        map.addLayer({
+          id: 'road',
+          type: 'line',
+          source: 'bkmap',
+          'source-layer': 'gis_osm_roads_free_1',
+          minzoom: 9,
+          filter: ['in', 'fclass', 'motorway', 'motorway_link'],
+          paint: {
+            'line-color': '#34495E',
+            'line-width': {
+              base: 1.4,
+              stops: [
+                [9, 2], //9-12:线宽0.5, >12:线宽 5
+                [12, 5],
+              ],
+            },
+          },
+        })
+        map.addLayer({
+          id: 'road-name',
+          type: 'symbol',
+          source: 'bkmap',
+          'source-layer': 'gis_osm_roads_free_1',
+          minzoom: 9,
+          filter: ['in', 'fclass', 'motorway', 'motorway_link'],
+          layout: {
+            // 'icon-image': 'museum-15',
+            'text-field': '{name}',
+            'text-font': ['Microsoft YaHei Regular'],
+            'text-transform': 'uppercase',
+            'text-padding': 5,
+            'text-keep-upright': false,
+            'text-rotation-alignment': 'map',
+            'symbol-placement': 'line-center',
+            'text-pitch-alignment': 'viewport',
+            'text-size': 12,
+            'text-offset': [0, 0.6],
+            'text-anchor': 'top',
+          },
+          paint: {
+            'text-halo-color': 'hsl(0, 0%, 100%)',
+            'text-halo-width': 0.5,
+            'text-color': '#AF601A',
+          },
+        })
+
+        //显示poi
+        map.addLayer({
+          id: 'pois-name',
+          type: 'symbol',
+          source: 'bkmap',
+          'source-layer': 'gis_osm_pois_free_1',
+          minzoom: 11,
+          layout: {
+            'text-field': '{name}',
+            'text-font': ['Microsoft YaHei Regular'],
+            'text-offset': [0, 0.6],
+            'text-anchor': 'top',
+            'text-size': 12,
+          },
+          paint: {
+            'text-halo-color': 'hsl(0, 0%, 100%)',
+            'text-halo-width': 1,
+            'text-color': '#A569BD',
+          },
+        })
+
+        map.addLayer({
+          id: 'pois',
+          source: 'bkmap',
+          'source-layer': 'gis_osm_pois_free_1',
+          minzoom: 11,
+          type: 'circle',
+          paint: {
+            'circle-radius': 5,
+            'circle-color': '#85929E',
           },
         })
       }
@@ -543,8 +624,8 @@
             'line-color': {
               base: 1,
               stops: [
-                [8, 'hsl(200, 87%, 62%)'],
-                [9, 'hsl(200, 100%, 68%)'],
+                [8, '#AF601A'],
+                // [9, '#AF601A'],
               ],
             },
           },
@@ -568,7 +649,7 @@
             'line-gap-width': 0,
             'line-color': {
               base: 1,
-              stops: [[8, '#85C1E9']],
+              stops: [[8, '#AF601A']],
             },
           },
           interactive: true,
@@ -615,17 +696,39 @@
         //   },
         //   interactive: true,
         // })
-        //添加设备图层
+        //添加设备图层:type=circle
+        // map.addLayer({
+        //   id: 'device',
+        //   type: 'circle',
+        //   source: 'tjgs',
+        //   'source-layer': 'device',
+        //   paint: {
+        //     'circle-radius': 10,
+        //     'circle-color': '#3887be',
+        //   },
+        //   filter: ['all', ['>', 'device', 0]], //fiter for noting to show
+        //   minzoom: 13,
+        //   interactive: true,
+        // })
+        //添加设备图层:type=symbol
         map.addLayer({
           id: 'device',
-          type: 'circle',
+          type: 'symbol',
           source: 'tjgs',
           'source-layer': 'device',
-          paint: {
-            'circle-radius': 10,
-            'circle-color': '#3887be',
+          layout: {
+            'icon-image': 'attraction-15',
+            'text-field': '{TEXTSTRING}',
+            'text-font': ['Microsoft YaHei Regular'],
+            // 'text-offset': [0, 0.6],
+            'text-anchor': 'top',
           },
-          filter: ['all', ['>', 'device', 0]], //fiter for noting to show
+          paint: {
+            'text-halo-color': 'hsl(0, 0%, 100%)',
+            'text-halo-width': 1.25,
+            'text-color': '#F9E79F',
+          },
+          filter: ['all', ['>', 'device', 0]], //filter for noting to show
           minzoom: 13,
           interactive: true,
         })

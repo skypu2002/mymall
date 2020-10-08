@@ -1,36 +1,423 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title></title>
     <meta charset="utf-8" />
+    <title>离线字体及图标的使用</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <script src="http://localhost:8080/mapbox/mapbox-gl.js"></script>
+    <link href="http://localhost:8080/mapbox/mapbox-gl.css" rel="stylesheet" />
     <style>
-      html,
       body {
-        padding: 0;
         margin: 0;
-        height: 100%;
-        overflow: hidden;
+        padding: 0;
       }
 
       #map {
-        height: 100%;
-        z-index: 0;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
       }
     </style>
-    <script src="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js"></script>
-    <link href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css" rel="stylesheet" />
   </head>
+
   <body>
     <div id="map"></div>
     <script>
-      mapboxgl.accessToken = 'pk.eyJ1IjoiYXR0dWluZyIsImEiOiJjamNham4ycTgwZzVkMndzM2lzYTJtN2VjIn0.kB9yWdGNuo7_oi3brXX4-A'
+      const chinaStye = {
+        version: 8,
+        name: 'chinaMap',
+        sprite: 'http://localhost:8080/mapbox/sprite',
+        glyphs: './mapbox/fonts/{fontstack}/{range}.pbf',
+        sources: {
+          chinaMap: {
+            type: 'vector',
+            scheme: 'tms',
+            tiles: ['http://ld.laic-tech.com:11170/geoserver/gwc/service/tms/1.0.0/osm%3Achina@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf'],
+          },
+        },
+        layers: [],
+      }
+
+      const hzStye = {
+        version: 8,
+        name: 'hzMap',
+        sprite: 'http://localhost:8080/mapbox/sprite',
+        glyphs: './mapbox/fonts/{fontstack}/{range}.pbf',
+        sources: {
+          hzMap: {
+            type: 'vector',
+            scheme: 'tms',
+            tiles: ['http://ld.laic-tech.com:11170/geoserver/gwc/service/tms/1.0.0/osm%3Ahangzhou@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf'],
+          },
+        },
+        layers: [],
+      }
+
+      const onlineStyle = {
+        version: 8,
+        //      style: 'mapbox://styles/mapbox/basic-v9',
+        //      "sprite": "mapbox://sprites/mapbox/streets-v8",
+        sprite: 'http://localhost:8080/mapbox/sprite',
+        glyphs: './mapbox/fonts/{fontstack}/{range}.pbf',
+        sources: {
+          'osm-tiles': {
+            type: 'raster',
+            tiles: ['http://c.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+            tileSize: 256,
+          },
+        },
+        layers: [
+          {
+            id: 'simple-tiles',
+            type: 'raster',
+            source: 'osm-tiles',
+            minzoom: 0,
+            maxzoom: 22,
+          },
+        ],
+      }
+      // mapboxgl.accessToken = 'pk.eyJ1IjoiaHpzejIwMjAiLCJhIjoiY2tjdm9pNHZpMDY3NzJ2czM4a2hjdjM1byJ9.Vt6klFZFg08r04OKYTQvrw'
       var map = new mapboxgl.Map({
-        container: 'map',
-        style: 'mapbox://mapbox.mapbox-streets-v9',
-        center: [113.487, 38.2926],
-        zoom: 10,
+        container: 'map', // container id
+        style: chinaStye,
+        zoom: 3,
+        // center: [113.357, 38.3126], // starting position [lng, lat] shanxi
+        center: [120.34191, 30.20093], //太湖
+        // center: [120.25, 29.15], // starting position [lng, lat] hangzhou
       })
+
+      map.on('load', function() {
+        addChinaLayers()
+        // addHzLayers()
+        addMapControls()
+      })
+
+      function addChinaLayers() {
+        map.addLayer({
+          id: 'province',
+          source: 'chinaMap',
+          'source-layer': 'province',
+          type: 'line',
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round',
+          },
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round',
+          },
+          paint: {
+            'line-dasharray': {
+              base: 1,
+              stops: [
+                [6, [2, 0]],
+                [7, [2, 2, 6, 2]],
+              ],
+            },
+            'line-width': {
+              base: 1,
+              stops: [
+                [7, 0.75],
+                [12, 1.5],
+              ],
+            },
+            'line-opacity': {
+              base: 1,
+              stops: [
+                [2, 0],
+                [3, 1],
+              ],
+            },
+            'line-color': {
+              base: 1,
+              stops: [
+                [3, 'hsl(210, 29%, 77%)'],
+                [7, 'hsl(230, 8%, 62%)'],
+              ],
+            },
+          },
+        })
+
+        //显示poi
+        map.addLayer({
+          id: 'pois-name',
+          type: 'symbol',
+          source: 'chinaMap',
+          'source-layer': 'gis_osm_pois_free_1',
+          minzoom: 9,
+          layout: {
+            'text-field': '{name}',
+            'text-font': ['Microsoft YaHei Regular'],
+            'text-offset': [0, 0.6],
+            'text-anchor': 'top',
+          },
+          paint: {
+            'text-halo-color': 'hsl(0, 0%, 100%)',
+            'text-halo-width': 1.25,
+            'text-color': '#A569BD',
+          },
+        })
+
+        map.addLayer({
+          id: 'pois',
+          source: 'chinaMap',
+          'source-layer': 'gis_osm_pois_free_1',
+          minzoom: 9,
+          type: 'circle',
+          paint: {
+            'circle-radius': 5,
+            'circle-color': '#85929E',
+          },
+        })
+        //显示province 名称
+        // map.addLayer({
+        //   id: 'province-name',
+        //   source: 'chinaMap',
+        //   'source-layer': 'province',
+        //   type: 'symbol',
+        //   layout: {
+        //     'icon-image': '{icon}-11',
+        //     'text-field': '{NAME}',
+        //     'text-transform': 'uppercase',
+        //     'text-font': ['Microsoft YaHei Regular'],
+        //     'text-padding': 5,
+        //     'text-keep-upright': false,
+        //     'text-rotation-alignment': 'map',
+        //     'symbol-placement': 'line-center',
+        //     'text-pitch-alignment': 'viewport',
+        //     'text-size': 12,
+        //   },
+        //   paint: {
+        //     'text-halo-color': 'rgb(200, 200, 200)',
+        //     'text-halo-width': 1,
+        //     'text-color': '#A569BD',
+        //     'text-halo-blur': 0.5,
+        //   },
+        //   interactive: true,
+        // })
+
+        // map.addLayer({
+        //   id: 'city',
+        //   type: 'fill',
+        //   source: 'chinaMap',
+        //   'source-layer': 'city',
+        //   minzoom: 7,
+        //   maxzoom: 15,
+        //   paint: {
+        //     'fill-color': '#273746',
+        //     'fill-opacity': 0.9,
+        //   },
+        // })
+
+        // map.addLayer({
+        //   id: 'city-boundaries',
+        //   type: 'line',
+        //   source: 'chinaMap',
+        //   'source-layer': 'city',
+        //   layout: {
+        //     'line-join': 'round',
+        //     'line-cap': 'round',
+        //   },
+        //   paint: {
+        //     'line-dasharray': {
+        //       base: 1,
+        //       stops: [
+        //         [6, [2, 0]],
+        //         [7, [2, 2, 6, 2]],
+        //       ],
+        //     },
+        //     'line-width': {
+        //       base: 1,
+        //       stops: [
+        //         [7, 0.75],
+        //         [12, 1.5],
+        //       ],
+        //     },
+        //     'line-opacity': {
+        //       base: 1,
+        //       stops: [
+        //         [2, 0],
+        //         [3, 1],
+        //       ],
+        //     },
+        //     'line-color': {
+        //       base: 1,
+        //       stops: [
+        //         [3, '#CCD1D1'],
+        //         [7, '#CCD1D1'],
+        //       ],
+        //     },
+        //   },
+        //   interactive: true,
+        // })
+
+        // map.addLayer({
+        //   id: 'county',
+        //   type: 'fill',
+        //   source: 'chinaMap',
+        //   'source-layer': 'county',
+        //   minzoom: 7,
+        //   paint: {
+        //     'fill-color': '#273746',
+        //     'fill-opacity': 0.9,
+        //   },
+        // })
+
+        // map.addLayer({
+        //   id: 'county-boundaries',
+        //   type: 'line',
+        //   source: 'chinaMap',
+        //   'source-layer': 'county',
+        //   minzoom: 7,
+        //   maxzoom: 18,
+        //   layout: {
+        //     'line-join': 'round',
+        //     'line-cap': 'round',
+        //   },
+        //   paint: {
+        //     'line-dasharray': {
+        //       base: 1,
+        //       stops: [
+        //         [6, [2, 0]],
+        //         [7, [2, 2, 6, 2]],
+        //       ],
+        //     },
+        //     'line-width': {
+        //       base: 1,
+        //       stops: [
+        //         [7, 0.75],
+        //         [12, 1.5],
+        //       ],
+        //     },
+        //     'line-opacity': {
+        //       base: 1,
+        //       stops: [
+        //         [2, 0],
+        //         [3, 1],
+        //       ],
+        //     },
+        //     'line-color': {
+        //       base: 1,
+        //       stops: [
+        //         [3, '#CCD1D1'],
+        //         [7, '#CCD1D1'],
+        //       ],
+        //     },
+        //   },
+        //   interactive: true,
+        // })
+
+        // //添加gis_osm_waterways_free_1图层
+        // map.addLayer({
+        //   id: 'waterways',
+        //   type: 'line',
+        //   source: 'chinaMap',
+        //   'source-layer': 'gis_osm_waterways_free_1',
+        //   minzoom: 10,
+        //   maxzoom: 18,
+        //   paint: {
+        //     'line-color': '#a0cfdf',
+        //     'line-width': {
+        //       base: 1.4,
+        //       stops: [
+        //         [8, 0.5],
+        //         [20, 15],
+        //       ],
+        //     },
+        //   },
+        // })
+
+        // map.addLayer({
+        //   id: 'landuse',
+        //   type: 'fill',
+        //   source: 'chinaMap',
+        //   'source-layer': 'gis_osm_landuse_a_free_1',
+        //   minzoom: 10,
+        //   maxzoom: 18,
+        //   paint: {
+        //     'fill-color': '#239B56',
+        //     'fill-opacity': 0.8,
+        //   },
+        // })
+      }
+
+      function addHzLayers() {
+        map.addLayer({
+          id: 'road',
+          source: 'hzMap',
+          'source-layer': '02road',
+          type: 'line',
+          paint: {
+            'line-color': '#66BB6A',
+            'line-opacity': 1,
+            'line-width': 3,
+          },
+        })
+
+        // map.addLayer({
+        //   id: 'roadname',
+        //   source: 'hzMap',
+        //   'source-layer': '04roadname',
+        //   type: 'line',
+        //   paint: {
+        //     'line-color': '#DC7633',
+        //     'line-opacity': 0.5,
+        //     'line-width': 4,
+        //   },
+        // })
+        // map.addLayer({
+        //   id: 'road-name',
+        //   source: 'bkmap',
+        //   'source-layer': '04roadname',
+        //   type: 'symbol',
+        //   minzoom: 13,
+        //   layout: {
+        //     'text-field': '{name}',
+        //     'text-transform': 'uppercase',
+        //     'text-font': ['Microsoft YaHei Regular'],
+        //     'text-padding': 5,
+        //     // 'text-keep-upright': false,
+        //     // 'text-rotation-alignment': 'map',
+        //     'symbol-placement': 'line-center',
+        //     // 'text-pitch-alignment': 'viewport',
+        //     'text-size': 12,
+        //   },
+        //   paint: {
+        //     // 'text-halo-color': 'rgb(200, 200, 200)',
+        //     // 'text-halo-width': 1,
+        //     'text-color': '#000',
+        //     // 'text-halo-blur': 0.5,
+        //   },
+        //   interactive: true,
+        // })
+        map.addLayer({
+          id: 'roadnamepoint',
+          source: 'hzMap',
+          'source-layer': '06roadnamepoint',
+          type: 'circle',
+          paint: {
+            'circle-radius': 20,
+            'circle-color': '#000',
+          },
+        })
+        // map.addLayer({
+        //   id: 'device11',
+        //   type: 'circle',
+        //   source: 'bkmap',
+        //   'source-layer': '06roadnamepoint',
+        //   paint: {
+        //     'circle-radius': 10,
+        //     'circle-color': '#3887be',
+        //   },
+        //   minzoom: 9,
+        // })
+      }
+
+      function addMapControls() {
+        //添加缩放控件
+        map.addControl(new mapboxgl.NavigationControl(), 'top-right')
+      }
     </script>
   </body>
 </html>
