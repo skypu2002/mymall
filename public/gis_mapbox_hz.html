@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Join local JSON data with vector tile geometries</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <script src="http://localhost:8080/mapbox/mapbox-gl.js"></script>
+    <link href="http://localhost:8080/mapbox/mapbox-gl.css" rel="stylesheet" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+      #ZoomSlider {
+        width: 250px;
+        height: 200px;
+        z-index: 2;
+        position: absolute;
+        transform: rotate(-90deg);
+      }
+
+      input[type='range']::-webkit-slider-thumb {
+        -webkit-appearance: none;
+      }
+
+      input[type='range'] {
+        -webkit-appearance: none;
+        width: 200px;
+        border-radius: 10px;
+        /*这个属性设置使填充进度条时的图形为圆角*/
+      }
+
+      /*滑块轨道*/
+      input[type='range']::-webkit-slider-runnable-track {
+        height: 15px;
+        border-radius: 10px;
+        /*将轨道设为圆角的*/
+        box-shadow: 0 1px 1px #def3f8, inset 0 0.125em 0.125em #0d1112;
+        /*轨道内置阴影效果*/
+      }
+
+      input[type='range']:focus {
+        outline: none;
+      }
+
+      input[type='range']::-webkit-slider-runnable-track {
+        cursor: pointer;
+      }
+
+      /*滑块样式*/
+      input[type='range']::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        height: 25px;
+        width: 25px;
+        margin-top: -5px;
+        /*使滑块超出轨道部分的偏移量相等*/
+        background: #ffffff;
+        border-radius: 50%;
+        /*外观设置为圆形*/
+        border: solid 0.125em rgba(205, 224, 230, 0.5);
+        /*设置边框*/
+        box-shadow: 0 0.125em 0.125em #3b4547;
+        /*添加底部阴影*/
+      }
+      #zoomLevel {
+        color: #f1c40f;
+      }
+
+      /* for 设备选择框 */
+      .filter-group {
+        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        font-weight: 600;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1;
+        border-radius: 3px;
+        width: 120px;
+        color: #fff;
+      }
+
+      .filter-group input[type='checkbox']:first-child + label {
+        border-radius: 3px 3px 0 0;
+      }
+
+      .filter-group label:last-child {
+        border-radius: 0 0 3px 3px;
+        border: none;
+      }
+
+      .filter-group input[type='checkbox'] {
+        display: none;
+      }
+
+      .filter-group input[type='checkbox'] + label {
+        background-color: #3386c0;
+        display: block;
+        cursor: pointer;
+        padding: 10px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+      }
+
+      .filter-group input[type='checkbox'] + label {
+        background-color: #3386c0;
+        text-transform: capitalize;
+      }
+
+      .filter-group input[type='checkbox'] + label:hover,
+      .filter-group input[type='checkbox']:checked + label {
+        background-color: #4ea0da;
+      }
+
+      .filter-group input[type='checkbox']:checked + label:before {
+        content: '✔';
+        margin-right: 5px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="ZoomSlider">
+      <div id="zoomLevel"></div>
+      <input id="slider" type="range" min="1" max="18" step="0.001" value="1" />
+    </div>
+
+    <div id="map"></div>
+
+    <nav id="filter-group" class="filter-group"></nav>
+
+    <script>
+      // mapboxgl.accessToken = 'pk.eyJ1IjoibGFpYy10ZWNoIiwiYSI6ImNpdTV2bDV2YjBocTkydG8xNDFvYnE3aXQifQ.EysfWwae76jd2aAAHfnBuQ'
+      // online method
+      // var map = new mapboxgl.Map({
+      //   container: 'map', // container id
+      //   style: 'mapbox://styles/mapbox/dark-v10', // stylesheet location
+      //   center: [113.357, 38.3126], // starting position [lng, lat]
+      //   zoom: 2, // starting zoom
+      // })
+
+      const hzStye = {
+        version: 8,
+        name: 'bkmap',
+        sprite: 'http://localhost:8080/mapbox/sprite',
+        glyphs: './mapbox/fonts/{fontstack}/{range}.pbf',
+        sources: {
+          bkmap: {
+            type: 'vector',
+            scheme: 'tms',
+            tiles: ['http://ld.laic-tech.com:11170/geoserver/gwc/service/tms/1.0.0/osm%3Ahangzhou@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf'],
+          },
+        },
+        layers: [],
+      }
+
+      //offline method
+      const map = new mapboxgl.Map({
+        container: 'map',
+        center: [120.25, 30.15], // starting position [lng, lat] hangzhou
+        zoom: 10,
+        style: hzStye,
+        // bearing: -45,
+        // pitch: 30,
+      })
+
+      map.on('load', function() {
+        addHzLayers()
+        //添加地图控制控件
+        addMapControls()
+      })
+
+      function addHzLayers() {
+        const layer1 = map.addLayer({
+          id: 'road',
+          source: 'bkmap',
+          'source-layer': '02road',
+          type: 'line',
+          paint: {
+            'line-color': '#B9770E',
+            'line-opacity': 1,
+            'line-width': 3,
+          },
+        })
+
+        // map.addLayer({
+        //   id: 'roadname',
+        //   source: 'bkmap',
+        //   'source-layer': '04roadname',
+        //   type: 'line',
+        //   paint: {
+        //     'line-color': '#DC7633',
+        //     'line-opacity': 0.5,
+        //     'line-width': 4,
+        //   },
+        // })
+        map.addLayer({
+          id: 'road-name',
+          source: 'bkmap',
+          'source-layer': '04roadname',
+          type: 'symbol',
+          minzoom: 11,
+          layout: {
+            'text-field': '{NAME}',
+            'text-transform': 'uppercase',
+            'text-font': ['Microsoft YaHei Regular'],
+            'text-padding': 5,
+            //与 symbol-placement 结合使用，确定构成文本的单个字型的旋转行为。
+            //值有 map, viewport, auto. 默认为 auto. 需要 text-field.
+            // map => 当 symbol-placement 设置为 point 时，将文本与东西方向对齐。当 symbol-placement 设置为 line 时，将文本的 x 轴与线对齐。
+            // viewport => 将字型的 x 轴与视窗的 x 轴对齐，无论 symbol-placement 设置为哪个值。
+            // auto => 当 symbol-placement 设置为 point 时，与 viewport 行为一致。当 symbol-placement 设置为 line 时，与 map 行为一致。
+            'text-rotation-alignment': 'map',
+            'symbol-placement': 'line',
+            // 当地图倾斜时文本的方向。值有 map, viewport, auto. 默认为 auto. 需要 text-field.
+            'text-pitch-alignment': 'viewport',
+            //默认为 true. 需要 text-field. 需要 text-rotation-alignment = map. 需要 symbol-placement = line.
+            // 如果设置为 true，文本可以被翻转以避免图标上下颠倒。
+            'text-keep-upright': true,
+            //字体默认大小为1，10-15级字体为大小为 12
+            //大于15级字体大小为18
+            'text-size': {
+              base: 12,
+              stops: [
+                [10, 12],
+                [15, 18],
+              ],
+            },
+          },
+          paint: {
+            'text-halo-color': 'rgb(200, 200, 200)',
+            'text-halo-width': 1,
+            'text-color': '#1A5276',
+            'text-halo-blur': 0.5,
+          },
+          interactive: true,
+        })
+        // map.addLayer({
+        //   id: 'roadnamepoint',
+        //   source: 'bkmap',
+        //   'source-layer': '06roadnamepoint',
+        //   type: 'circle',
+        //   paint: {
+        //     'circle-radius': 20,
+        //     'circle-color': '#000',
+        //   },
+        // })
+        // map.addLayer({
+        //   id: 'device11',
+        //   type: 'circle',
+        //   source: 'bkmap',
+        //   'source-layer': '06roadnamepoint',
+        //   paint: {
+        //     'circle-radius': 10,
+        //     'circle-color': '#3887be',
+        //   },
+        //   minzoom: 9,
+        // })
+      }
+
+      //点击设备图层，显示相关信息
+      function addMapControls() {
+        //添加缩放控件
+        map.addControl(new mapboxgl.NavigationControl(), 'top-right')
+        //add scale
+        const scale = new mapboxgl.ScaleControl({
+          maxWidth: 80,
+          unit: 'imperial',
+        })
+        map.addControl(scale)
+        scale.setUnit('metric')
+        // 获取滑块标签
+        var slider = document.getElementById('slider')
+        var zoomLevel = document.getElementById('zoomLevel')
+        // 滑块标签注册事件
+        slider.addEventListener('input', function(e) {
+          map.setZoom(parseInt(e.target.value))
+        })
+        // 注册地图缩放事件
+        map.on('zoom', function(e) {
+          slider.value = map.getZoom()
+          zoomLevel.innerText = slider.value
+          // console.log('slider.value: ', slider.value)
+        })
+      }
+
+      function setLanguage() {
+        //未使用
+        // 设置地图显示的语言（失败）
+        mapboxgl.setRTLTextPlugin('https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.1.0/mapbox-gl-rtl-text.js')
+        map.addControl(
+          new MapboxLanguage({
+            defaultLanguage: 'zh',
+          })
+        )
+      }
+    </script>
+  </body>
+</html>
