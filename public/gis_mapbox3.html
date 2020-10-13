@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Join local JSON data with vector tile geometries</title>
+    <title>WuyuHighWay Demo</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <script src="http://localhost:8080/mapbox/mapbox-gl.js"></script>
     <link href="http://localhost:8080/mapbox/mapbox-gl.css" rel="stylesheet" />
@@ -143,7 +143,7 @@
       //   zoom: 2, // starting zoom
       // })
 
-      const hzStye = {
+      let chinaStye = {
         version: 8,
         name: 'bkmap',
         sprite: 'http://localhost:8080/mapbox/sprite',
@@ -152,22 +152,7 @@
           bkmap: {
             type: 'vector',
             scheme: 'tms',
-            tiles: ['http://ld.laic-tech.com:11170/geoserver/gwc/service/tms/1.0.0/osm%3Ahangzhou@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf'],
-          },
-        },
-        layers: [],
-      }
-
-      const chinaStye = {
-        version: 8,
-        name: 'bkmap',
-        sprite: 'http://localhost:8080/mapbox/sprite',
-        glyphs: './mapbox/fonts/{fontstack}/{range}.pbf',
-        sources: {
-          bkmap: {
-            type: 'vector',
-            scheme: 'tms',
-            tiles: ['http://ld.laic-tech.com:11170/geoserver/gwc/service/tms/1.0.0/osm%3Achina@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf'],
+            tiles: ['http://ld.laic-tech.com:11170/geoserver/gwc/service/tms/1.0.0/osm:china@EPSG:900913@pbf/{z}/{x}/{y}.pbf'],
           },
         },
         layers: [],
@@ -186,23 +171,11 @@
         // bearing: -45,
         // pitch: 30,
       })
-      //添加bk source
-      // const source1 = map.addSource('bkmap', {
-      //   type: 'vector',
-      //   scheme: 'tms',
-      //   // tiles: ['http://ld.laic-tech.com:11170/geoserver/gwc/service/tms/1.0.0/tj%3Atjgs@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf'],
-      //   tiles: ['http://ld.laic-tech.com:11170/geoserver/gwc/service/tms/1.0.0/osm%3Ahangzhou@EPSG%3A900913@pbf/{z}/{x}/{y}.png'],
-      //   style: {
-      //     glyphs: 'http://localhost:8080/mapbox/fonts/{fontstack}/{range}.pbf',
-      //   },
-      // })
-      // console.log('source1: ', source1)
 
       map.on('load', function() {
         //添加设备列表
         deviceCheckList()
         // addBgColor()
-        // addHzLayers()
         addChinaLayers()
         addWuyuWayLayers()
         // 地图显示完毕后，使用飞入效果定位到指定的区域范围
@@ -218,80 +191,19 @@
 
         //添加地图控制控件
         addMapControls()
+        //添加自定义icon
+        addIcons()
       })
 
-      function addHzLayers() {
-        // const layer1 = map.addLayer({
-        //   id: 'road',
-        //   source: 'bkmap',
-        //   'source-layer': '02road',
-        //   type: 'line',
-        //   paint: {
-        //     'line-color': '#66BB6A',
-        //     'line-opacity': 1,
-        //     'line-width': 3,
-        //   },
-        // })
-
-        const layer2 = map.addLayer({
-          id: 'roadname',
-          source: 'bkmap',
-          'source-layer': '04roadname',
-          type: 'line',
-          paint: {
-            'line-color': '#DC7633',
-            'line-opacity': 0.5,
-            'line-width': 4,
-          },
-        })
-        // map.addLayer({
-        //   id: 'road-name',
-        //   source: 'bkmap',
-        //   'source-layer': '04roadname',
-        //   type: 'symbol',
-        //   minzoom: 13,
-        //   layout: {
-        //     'text-field': '{name}',
-        //     'text-transform': 'uppercase',
-        //     'text-font': ['Microsoft YaHei Regular'],
-        //     'text-padding': 5,
-        //     // 'text-keep-upright': false,
-        //     // 'text-rotation-alignment': 'map',
-        //     'symbol-placement': 'line-center',
-        //     // 'text-pitch-alignment': 'viewport',
-        //     'text-size': 12,
-        //   },
-        //   paint: {
-        //     // 'text-halo-color': 'rgb(200, 200, 200)',
-        //     // 'text-halo-width': 1,
-        //     'text-color': '#000',
-        //     // 'text-halo-blur': 0.5,
-        //   },
-        //   interactive: true,
-        // })
-        // map.addLayer({
-        //   id: 'roadnamepoint',
-        //   source: 'bkmap',
-        //   'source-layer': '06roadnamepoint',
-        //   type: 'circle',
-        //   paint: {
-        //     'circle-radius': 20,
-        //     'circle-color': '#000',
-        //   },
-        // })
-        // map.addLayer({
-        //   id: 'device11',
-        //   type: 'circle',
-        //   source: 'bkmap',
-        //   'source-layer': '06roadnamepoint',
-        //   paint: {
-        //     'circle-radius': 10,
-        //     'circle-color': '#3887be',
-        //   },
-        //   minzoom: 9,
-        // })
+      function addIcons() {
+        // map.addImage('test01', { width: width, height: width, data: data });
+        let img = new Image(20, 20)
+        img.onload = () => map.addImage('test01', img)
+        img.src = './icon/cart_active.svg'
+        let img2 = new Image(20, 20)
+        img2.onload = () => map.addImage('test02', img2)
+        img2.src = './icon/category_active.svg'
       }
-
       function addChinaLayers() {
         map.addLayer({
           id: 'province',
@@ -343,10 +255,10 @@
           id: 'province-name',
           type: 'symbol',
           source: 'bkmap',
-          'source-layer': 'provincepoint',
+          'source-layer': 'province',
           minzoom: 1,
           layout: {
-            'text-field': '{name}',
+            'text-field': '{NAME}',
             'text-font': ['Microsoft YaHei Regular'],
             'text-offset': [0, 0.6],
             'text-anchor': 'top',
@@ -585,6 +497,211 @@
 
       // 添加五盂高速的图层
       function addWuyuWayLayers() {
+        //五盂高速道路显示要求：
+        //1. 初始显示单线道路，用红黄绿标识风险程度
+        //2. 放大到15级后，显示车道级道路，有虚线和实现表示，并实时显示车辆轨迹
+        //3. 通过菜单显示某一个类型的设备，点击设备可以查看相关信息
+
+        // 图层Source定义
+        map.addSource('wyhighway', {
+          type: 'vector',
+          scheme: 'tms',
+          tiles: ['http://ld.laic-tech.com:11170/geoserver/gwc/service/tms/1.0.0/shanxi:wyhighway@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf'],
+          style: {
+            glyphs: './mapbox/fonts/{fontstack}/{range}.pbf',
+          },
+        })
+
+        // 添加道路中线图层
+        map.addLayer({
+          id: 'road_single_line',
+          type: 'line',
+          source: 'wyhighway',
+          'source-layer': 'road_single_line',
+          layout: {
+            'line-cap': 'round',
+            'line-join': 'round',
+          },
+          minzoom: 8,
+          maxzoom: 15,
+          paint: {
+            'line-width': 8,
+            'line-color': {
+              base: 1,
+              stops: [
+                [8, '#AF601A'],
+                // [9, '#AF601A'],
+              ],
+            },
+          },
+          interactive: true,
+        })
+        //添加车道级道路
+        // 实线车道
+        map.addLayer({
+          id: 'road-solid',
+          type: 'line',
+          source: 'wyhighway',
+          'source-layer': 'road_multi_line',
+          filter: ['==', 'Layer', '标线实线'],
+          layout: {
+            'line-cap': 'round',
+            'line-join': 'round',
+          },
+          minzoom: 15.001,
+          paint: {
+            'line-width': 4,
+            'line-gap-width': 0,
+            'line-color': {
+              base: 1,
+              stops: [[8, '#AF601A']],
+            },
+          },
+          interactive: true,
+        })
+        // 虚线车道
+        map.addLayer({
+          id: 'road-dash',
+          type: 'line',
+          source: 'wyhighway',
+          'source-layer': 'road_multi_line',
+          filter: ['==', 'Layer', '标线虚线'],
+          layout: {
+            'line-cap': 'round',
+            'line-join': 'round',
+          },
+          minzoom: 15.001,
+          paint: {
+            'line-width': 2,
+            'line-dasharray': [15, 10], //线长、间隔长度
+            'line-color': '#909497',
+          },
+          interactive: true,
+        })
+
+        // 添加桩号图层
+        map.addLayer({
+          id: 'stake',
+          type: 'line',
+          source: 'wyhighway',
+          'source-layer': 'stake',
+          layout: {
+            'line-cap': 'round',
+            'line-join': 'round',
+          },
+          minzoom: 13,
+          paint: {
+            'line-width': 3,
+            'line-color': {
+              base: 1,
+              stops: [
+                [8, 'hsl(200, 87%, 62%)'],
+                [9, 'hsl(200, 100%, 68%)'],
+              ],
+            },
+          },
+          interactive: true,
+        })
+        //添加桩号名称 type=symbol
+        map.addLayer({
+          id: 'stake_name',
+          type: 'symbol',
+          source: 'wyhighway',
+          'source-layer': 'stake',
+          layout: {
+            'text-field': '{运营桩}',
+            'text-font': ['Microsoft YaHei Regular'],
+            // 'text-offset': [0, 0.6],
+            'text-anchor': 'top',
+            'text-size': {
+              base: 6,
+              stops: [
+                [13, 8],
+                [14, 12],
+              ],
+            },
+          },
+          paint: {
+            'text-halo-color': 'hsl(0, 0%, 100%)',
+            'text-halo-width': 0.2,
+            'text-color': '#F9E79F',
+          },
+          minzoom: 13,
+          interactive: true,
+        })
+
+        map.addLayer({
+          id: 'device',
+          type: 'symbol',
+          source: 'wyhighway',
+          'source-layer': 'device',
+          layout: {
+            'icon-image': 'attraction-15',
+            'text-field': '{TEXTSTRING}',
+            'text-font': ['Microsoft YaHei Regular'],
+            // 'text-offset': [0, 0.6],
+            'text-anchor': 'top',
+          },
+          paint: {
+            'text-halo-color': 'hsl(0, 0%, 100%)',
+            'text-halo-width': 1.25,
+            'text-color': '#F9E79F',
+          },
+          filter: ['all', ['>', 'device', 0]], //filter for noting to show
+          minzoom: 13,
+          interactive: true,
+        })
+
+        // map.addLayer({
+        //   id: 'device-name',
+        //   source: 'wyhighway',
+        //   'source-layer': 'device',
+        //   type: 'symbol',
+        //   minzoom: 13,
+        //   layout: {
+        //     'text-field': '{fid}',
+        //     'text-transform': 'uppercase',
+        //     'text-font': ['Microsoft YaHei Regular'],
+        //     'text-padding': 5,
+        //     'text-keep-upright': false,
+        //     'text-rotation-alignment': 'map',
+        //     'symbol-placement': 'line-center',
+        //     'text-pitch-alignment': 'viewport',
+        //     'text-size': 12,
+        //   },
+        //   paint: {
+        //     'text-halo-color': 'rgb(200, 200, 200)',
+        //     'text-halo-width': 1,
+        //     'text-color': '#C0392B',
+        //     'text-halo-blur': 0.5,
+        //   },
+        //   interactive: true,
+        // })
+
+        // 添加光带图层
+        map.addLayer({
+          id: 'light',
+          type: 'line',
+          source: 'wyhighway',
+          'source-layer': 'light',
+          layout: {
+            'line-cap': 'round',
+            'line-join': 'round',
+          },
+          minzoom: 8,
+          maxzoom: 20,
+          paint: {
+            'line-width': 10,
+            'line-color': {
+              base: 1,
+              stops: [[8, '#F4D03F']],
+            },
+          },
+          interactive: true,
+        })
+      }
+
+      function addOldWuyuWayLayers() {
         //五盂高速道路显示要求：
         //1. 初始显示单线道路，用红黄绿标识风险程度
         //2. 放大到15级后，显示车道级道路，有虚线和实现表示，并实时显示车辆轨迹
@@ -872,14 +989,21 @@
 
       function deviceCheckList() {
         const deviceTypeList = [
-          {type: '雷达', item: ['广域毫', '广域_1', '短距离', '广域_12', '激光雷']},
-          {type: '摄像头', item: ['摄像机', '摄像_1', '摄像_12', '摄像__13', '鱼眼_摄', '车牌识']},
-          {type: '水膜传感器', item: ['水膜传', '水膜_1']},
-          {type: '动态称重传感器', item: ['动态称']},
-          {type: '微气象站', item: ['气象检']},
-          {type: '光带', item: ['差分基站', 'RSU', 'RCU（实', '边缘计', '可变限']},
-          {type: '可变情报板', item: ['LED可变', '门架式']},
+          {type: '雷达', icon: 'test01', item: ['广域毫', '短距离']},
+          {type: '摄像头', icon: 'attraction-15', item: ['摄像机']},
+          {type: '卡口', icon: 'test02', item: ['车牌识']},
+          {type: '水膜传感器', icon: 'marker-15', item: ['水膜传', '水膜_1']},
+          {type: '动态称重传感器', icon: 'garden-15', item: ['动态称']},
+          {type: '微气象站', icon: 'town-hall-15', item: ['气象检']},
+          {type: '光带', icon: 'rail-light-15', item: ['光带']},
+          {type: '可变情报板', icon: 'information-15', item: ['LED可变', '门架式', '可变限']},
+          {
+            type: '其他',
+            icon: 'marker-15',
+            item: ['广域_1', '广域_12', '激光雷', '摄像_1', '摄像_12', '摄像__13', '鱼眼_摄', 'RSU', 'RCU（实', '边缘计', '差分基站'],
+          },
         ]
+
         var filterGroup = document.getElementById('filter-group')
 
         for (let i = 0; i < deviceTypeList.length; ++i) {
@@ -928,6 +1052,9 @@
         // map.setFilter('device', ['any', ['>', '鱼眼_摄', 0], filterString])
         // map.setFilter('device', ['any', filterString])
         // filterString:  ['>', '广域毫', 0],['>', '广域_1', 0],['>', '短距离', 0],['>', '广域_12', 0],['>', '激光雷', 0]
+
+        //修改对应的图标
+        map.setLayoutProperty('device', 'icon-image', device.icon)
       }
     </script>
   </body>
