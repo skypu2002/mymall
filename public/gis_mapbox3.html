@@ -127,6 +127,7 @@
     <div id="ZoomSlider">
       <div id="zoomLevel"></div>
       <input id="slider" type="range" min="1" max="18" step="0.001" value="1" />
+      <button onclick="renderLine100()">风险模拟</button>
     </div>
 
     <div id="map"></div>
@@ -191,19 +192,8 @@
 
         //添加地图控制控件
         addMapControls()
-        //添加自定义icon
-        addIcons()
       })
 
-      function addIcons() {
-        // map.addImage('test01', { width: width, height: width, data: data });
-        let img = new Image(20, 20)
-        img.onload = () => map.addImage('test01', img)
-        img.src = './icon/cart_active.svg'
-        let img2 = new Image(20, 20)
-        img2.onload = () => map.addImage('test02', img2)
-        img2.src = './icon/category_active.svg'
-      }
       function addChinaLayers() {
         map.addLayer({
           id: 'province',
@@ -442,6 +432,7 @@
           filter: ['in', 'fclass', 'motorway', 'motorway_link'],
           layout: {
             // 'icon-image': 'museum-15',
+            // 'icon-size': 0.5,
             'text-field': '{name}',
             'text-font': ['Microsoft YaHei Regular'],
             'text-transform': 'uppercase',
@@ -512,12 +503,12 @@
           },
         })
 
-        // 添加道路中线图层
+        // 添加100m打断的道路
         map.addLayer({
-          id: 'road_single_line',
+          id: 'road_single_100m',
           type: 'line',
           source: 'wyhighway',
-          'source-layer': 'road_single_line',
+          'source-layer': 'road_single_100m',
           layout: {
             'line-cap': 'round',
             'line-join': 'round',
@@ -525,17 +516,39 @@
           minzoom: 8,
           maxzoom: 15,
           paint: {
-            'line-width': 8,
+            'line-width': 5,
             'line-color': {
               base: 1,
-              stops: [
-                [8, '#AF601A'],
-                // [9, '#AF601A'],
-              ],
+              stops: [[8, '#EC7063']],
             },
           },
           interactive: true,
         })
+
+        // 添加道路中线图层
+        // map.addLayer({
+        //   id: 'road_single_line',
+        //   type: 'line',
+        //   source: 'wyhighway',
+        //   'source-layer': 'road_single_line',
+        //   layout: {
+        //     'line-cap': 'round',
+        //     'line-join': 'round',
+        //   },
+        //   minzoom: 8,
+        //   maxzoom: 15,
+        //   paint: {
+        //     'line-width': 8,
+        //     'line-color': {
+        //       base: 1,
+        //       stops: [
+        //         [8, '#AF601A'],
+        //         // [9, '#AF601A'],
+        //       ],
+        //     },
+        //   },
+        //   interactive: true,
+        // })
         //添加车道级道路
         // 实线车道
         map.addLayer({
@@ -603,32 +616,32 @@
           interactive: true,
         })
         //添加桩号名称 type=symbol
-        map.addLayer({
-          id: 'stake_name',
-          type: 'symbol',
-          source: 'wyhighway',
-          'source-layer': 'stake',
-          layout: {
-            'text-field': '{运营桩}',
-            'text-font': ['Microsoft YaHei Regular'],
-            // 'text-offset': [0, 0.6],
-            'text-anchor': 'top',
-            'text-size': {
-              base: 6,
-              stops: [
-                [13, 8],
-                [14, 12],
-              ],
-            },
-          },
-          paint: {
-            'text-halo-color': 'hsl(0, 0%, 100%)',
-            'text-halo-width': 0.2,
-            'text-color': '#F9E79F',
-          },
-          minzoom: 13,
-          interactive: true,
-        })
+        // map.addLayer({
+        //   id: 'stake_name',
+        //   type: 'symbol',
+        //   source: 'wyhighway',
+        //   'source-layer': 'stake',
+        //   layout: {
+        //     'text-field': '{运营桩}',
+        //     'text-font': ['Microsoft YaHei Regular'],
+        //     // 'text-offset': [0, 0.6],
+        //     'text-anchor': 'top',
+        //     'text-size': {
+        //       base: 6,
+        //       stops: [
+        //         [13, 8],
+        //         [14, 12],
+        //       ],
+        //     },
+        //   },
+        //   paint: {
+        //     'text-halo-color': 'hsl(0, 0%, 100%)',
+        //     'text-halo-width': 0.2,
+        //     'text-color': '#F9E79F',
+        //   },
+        //   minzoom: 13,
+        //   interactive: true,
+        // })
 
         map.addLayer({
           id: 'device',
@@ -989,17 +1002,17 @@
 
       function deviceCheckList() {
         const deviceTypeList = [
-          {type: '雷达', icon: 'test01', item: ['广域毫', '短距离']},
-          {type: '摄像头', icon: 'attraction-15', item: ['摄像机']},
-          {type: '卡口', icon: 'test02', item: ['车牌识']},
-          {type: '水膜传感器', icon: 'marker-15', item: ['水膜传', '水膜_1']},
-          {type: '动态称重传感器', icon: 'garden-15', item: ['动态称']},
-          {type: '微气象站', icon: 'town-hall-15', item: ['气象检']},
-          {type: '光带', icon: 'rail-light-15', item: ['光带']},
-          {type: '可变情报板', icon: 'information-15', item: ['LED可变', '门架式', '可变限']},
+          {type: '雷达', icon: 'btn_leida', item: ['广域毫', '短距离']},
+          {type: '摄像头', icon: 'btn_shexiang', item: ['摄像机']},
+          {type: '卡口', icon: 'btn_kakou', item: ['车牌识']},
+          {type: '水膜传感器', icon: 'btn_shuimo', item: ['水膜传', '水膜_1']},
+          {type: '动态称重传感器', icon: 'btn_chuanganqi', item: ['动态称']},
+          {type: '微气象站', icon: 'btn_qixiang', item: ['气象检']},
+          {type: '光带', icon: 'btn_guangdai', item: ['光带']},
+          {type: '可变情报板', icon: 'btn_qingbaoban', item: ['LED可变', '门架式', '可变限']},
           {
             type: '其他',
-            icon: 'marker-15',
+            icon: 'btn_qita',
             item: ['广域_1', '广域_12', '激光雷', '摄像_1', '摄像_12', '摄像__13', '鱼眼_摄', 'RSU', 'RCU（实', '边缘计', '差分基站'],
           },
         ]
@@ -1054,8 +1067,12 @@
         // filterString:  ['>', '广域毫', 0],['>', '广域_1', 0],['>', '短距离', 0],['>', '广域_12', 0],['>', '激光雷', 0]
 
         //修改对应的图标
-        map.setLayoutProperty('device', 'icon-image', device.icon)
+        map.setLayoutProperty('device', 'icon-image', device.icon + '_nor')
+        map.setLayoutProperty('device', 'icon-size', 0.5)
       }
+
+      // 渲染100m路段的颜色
+      function renderLine100() {}
     </script>
   </body>
 </html>
