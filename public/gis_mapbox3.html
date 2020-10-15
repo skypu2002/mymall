@@ -589,28 +589,28 @@
         })
 
         // 添加桩号图层
-        // map.addLayer({
-        //   id: 'stake',
-        //   type: 'line',
-        //   source: 'wyhighway',
-        //   'source-layer': 'stake',
-        //   layout: {
-        //     'line-cap': 'round',
-        //     'line-join': 'round',
-        //   },
-        //   minzoom: 13,
-        //   paint: {
-        //     'line-width': 3,
-        //     'line-color': {
-        //       base: 1,
-        //       stops: [
-        //         [8, 'hsl(200, 87%, 62%)'],
-        //         [9, 'hsl(200, 100%, 68%)'],
-        //       ],
-        //     },
-        //   },
-        //   interactive: true,
-        // })
+        map.addLayer({
+          id: 'stake',
+          type: 'line',
+          source: 'wyhighway',
+          'source-layer': 'stake',
+          layout: {
+            'line-cap': 'round',
+            'line-join': 'round',
+          },
+          minzoom: 13,
+          paint: {
+            'line-width': 3,
+            'line-color': {
+              base: 1,
+              stops: [
+                [8, 'hsl(200, 87%, 62%)'],
+                [9, 'hsl(200, 100%, 68%)'],
+              ],
+            },
+          },
+          interactive: true,
+        })
         //添加桩号名称 type=symbol
         // map.addLayer({
         //   id: 'stake_name',
@@ -1087,27 +1087,31 @@
         // Last value is the default, used where there is no data
         matchExpression.push('white')
 
+        //最佳的实践方法
+        map.setPaintProperty('stake', 'line-color', matchExpression)
+
+        // 以下实现使用了 remove & add Layer 方法
         // Remove exist layer and add layer to render
-        if (map.getLayer('stake-color')) {
-          map.removeLayer('stake-color')
-        }
-        map.addLayer(
-          {
-            id: 'stake-color',
-            type: 'line',
-            source: 'wyhighway',
-            'source-layer': 'stake',
-            paint: {
-              'line-width': 5,
-              // express: match
-              'line-color': matchExpression,
-              // 'line-color': ['match', ['get', '桩号id'], 1, 'green', 3, 'red', 'yellow'],
-              // express: case
-              // 'line-color': ['case', ['<', ['get', '桩号id'], 20], 'red', ['<', ['get', '桩号id'], 40], 'green', 'red'],
-            },
-          }
-          // 'admin-1-boundary-bg'  ==> Insert it below the 'admin-1-boundary-bg' layer in the style
-        )
+        // if (map.getLayer('stake-color')) {
+        //   map.removeLayer('stake-color')
+        // }
+        // map.addLayer(
+        //   {
+        //     id: 'stake-color',
+        //     type: 'line',
+        //     source: 'wyhighway',
+        //     'source-layer': 'stake',
+        //     paint: {
+        //       'line-width': 5,
+        //       // express: match
+        //       'line-color': matchExpression,
+        //       // 'line-color': ['match', ['get', '桩号id'], 1, 'green', 3, 'red', 'yellow'],
+        //       // express: case
+        //       // 'line-color': ['case', ['<', ['get', '桩号id'], 20], 'red', ['<', ['get', '桩号id'], 40], 'green', 'red'],
+        //     },
+        //   }
+        //   // 'admin-1-boundary-bg'  ==> Insert it below the 'admin-1-boundary-bg' layer in the style
+        // )
       }
     </script>
   </body>
