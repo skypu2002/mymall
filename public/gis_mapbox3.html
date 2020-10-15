@@ -204,10 +204,6 @@
             'line-join': 'round',
             'line-cap': 'round',
           },
-          layout: {
-            'line-join': 'round',
-            'line-cap': 'round',
-          },
           paint: {
             'line-dasharray': {
               base: 1,
@@ -593,28 +589,28 @@
         })
 
         // 添加桩号图层
-        map.addLayer({
-          id: 'stake',
-          type: 'line',
-          source: 'wyhighway',
-          'source-layer': 'stake',
-          layout: {
-            'line-cap': 'round',
-            'line-join': 'round',
-          },
-          minzoom: 13,
-          paint: {
-            'line-width': 3,
-            'line-color': {
-              base: 1,
-              stops: [
-                [8, 'hsl(200, 87%, 62%)'],
-                [9, 'hsl(200, 100%, 68%)'],
-              ],
-            },
-          },
-          interactive: true,
-        })
+        // map.addLayer({
+        //   id: 'stake',
+        //   type: 'line',
+        //   source: 'wyhighway',
+        //   'source-layer': 'stake',
+        //   layout: {
+        //     'line-cap': 'round',
+        //     'line-join': 'round',
+        //   },
+        //   minzoom: 13,
+        //   paint: {
+        //     'line-width': 3,
+        //     'line-color': {
+        //       base: 1,
+        //       stops: [
+        //         [8, 'hsl(200, 87%, 62%)'],
+        //         [9, 'hsl(200, 100%, 68%)'],
+        //       ],
+        //     },
+        //   },
+        //   interactive: true,
+        // })
         //添加桩号名称 type=symbol
         // map.addLayer({
         //   id: 'stake_name',
@@ -692,26 +688,26 @@
         // })
 
         // 添加光带图层
-        map.addLayer({
-          id: 'light',
-          type: 'line',
-          source: 'wyhighway',
-          'source-layer': 'light',
-          layout: {
-            'line-cap': 'round',
-            'line-join': 'round',
-          },
-          minzoom: 8,
-          maxzoom: 20,
-          paint: {
-            'line-width': 10,
-            'line-color': {
-              base: 1,
-              stops: [[8, '#F4D03F']],
-            },
-          },
-          interactive: true,
-        })
+        // map.addLayer({
+        //   id: 'light',
+        //   type: 'line',
+        //   source: 'wyhighway',
+        //   'source-layer': 'light',
+        //   layout: {
+        //     'line-cap': 'round',
+        //     'line-join': 'round',
+        //   },
+        //   minzoom: 8,
+        //   maxzoom: 20,
+        //   paint: {
+        //     'line-width': 10,
+        //     'line-color': {
+        //       base: 1,
+        //       stops: [[8, '#F4D03F']],
+        //     },
+        //   },
+        //   interactive: true,
+        // })
       }
 
       function addOldWuyuWayLayers() {
@@ -1072,7 +1068,47 @@
       }
 
       // 渲染100m路段的颜色
-      function renderLine100() {}
+      function renderLine100() {
+        let colorArr = ['red', 'yellow', 'green', 'white']
+        let data = []
+        for (let i = 1; i <= 60; i++) {
+          data.push({id: i, color: colorArr[Math.floor(Math.random() * 3)]})
+        }
+        // console.log(' render data: ', data)
+        // Build a GL match expression that defines the color for every vector tile feature
+        // Use the 桩号id 字段 lookup key for the stake shape
+        var matchExpression = ['match', ['get', '桩号id']]
+
+        // Calculate color values for each stake based on 'color' value
+        data.forEach(function(row) {
+          matchExpression.push(row['id'], row['color'])
+        })
+
+        // Last value is the default, used where there is no data
+        matchExpression.push('white')
+
+        // Remove exist layer and add layer to render
+        if (map.getLayer('stake-color')) {
+          map.removeLayer('stake-color')
+        }
+        map.addLayer(
+          {
+            id: 'stake-color',
+            type: 'line',
+            source: 'wyhighway',
+            'source-layer': 'stake',
+            paint: {
+              'line-width': 5,
+              // express: match
+              'line-color': matchExpression,
+              // 'line-color': ['match', ['get', '桩号id'], 1, 'green', 3, 'red', 'yellow'],
+              // express: case
+              // 'line-color': ['case', ['<', ['get', '桩号id'], 20], 'red', ['<', ['get', '桩号id'], 40], 'green', 'red'],
+            },
+          }
+          // 'admin-1-boundary-bg'  ==> Insert it below the 'admin-1-boundary-bg' layer in the style
+        )
+      }
     </script>
   </body>
 </html>
