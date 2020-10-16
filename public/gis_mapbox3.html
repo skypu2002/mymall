@@ -192,6 +192,11 @@
 
         //添加地图控制控件
         addMapControls()
+
+        //模拟每N秒更新100m图层的风险颜色
+        setInterval(() => {
+          renderLine100()
+        }, 1500)
       })
 
       function addChinaLayers() {
@@ -515,7 +520,7 @@
             'line-width': 5,
             'line-color': {
               base: 1,
-              stops: [[8, '#EC7063']],
+              stops: [[8, '#626567']],
             },
           },
           interactive: true,
@@ -598,9 +603,9 @@
             'line-cap': 'round',
             'line-join': 'round',
           },
-          minzoom: 13,
+          minzoom: 13.5,
           paint: {
-            'line-width': 3,
+            'line-width': 5,
             'line-color': {
               base: 1,
               stops: [
@@ -1069,26 +1074,30 @@
 
       // 渲染100m路段的颜色
       function renderLine100() {
-        let colorArr = ['red', 'yellow', 'green', 'white']
+        let colorArr = ['red', 'yellow', 'green', '#626567']
         let data = []
-        for (let i = 1; i <= 60; i++) {
-          data.push({id: i, color: colorArr[Math.floor(Math.random() * 3)]})
+        let step = 10
+        for (let i = 1; i <= 160; i = i + step) {
+          let color = colorArr[Math.floor(Math.random() * 3)]
+          for (let j = 0; j < step; j++) {
+            data.push({id: i + j, color: color})
+          }
         }
         // console.log(' render data: ', data)
         // Build a GL match expression that defines the color for every vector tile feature
-        // Use the 桩号id 字段 lookup key for the stake shape
-        var matchExpression = ['match', ['get', '桩号id']]
+        // Use the [link_id] field lookup key for the road_100 shape
+        var matchExpression = ['match', ['get', 'link_id']]
 
-        // Calculate color values for each stake based on 'color' value
+        // Calculate color values for each link based on 'color' value
         data.forEach(function(row) {
           matchExpression.push(row['id'], row['color'])
         })
 
         // Last value is the default, used where there is no data
-        matchExpression.push('white')
+        matchExpression.push('#626567')
 
         //最佳的实践方法
-        map.setPaintProperty('stake', 'line-color', matchExpression)
+        map.setPaintProperty('road_single_100m', 'line-color', matchExpression)
 
         // 以下实现使用了 remove & add Layer 方法
         // Remove exist layer and add layer to render
